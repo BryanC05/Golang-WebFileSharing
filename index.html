@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Web Share</title>
+    <style>
+        /* General Body and Container Styling */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #e0f2f7; /* Light blue background */
+            display: grid;
+            place-items: center;
+            min-height: 90vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 70, 100, 0.1); /* Blue-tinted shadow */
+            padding: 2rem;
+            width: 100%;
+            max-width: 450px;
+            box-sizing: border-box;
+        }
+
+        /* Tab Navigation Styling */
+        .tab {
+            display: flex;
+            border-bottom: 2px solid #b3e0f2; /* Lighter blue border */
+            margin-bottom: 1.5rem;
+        }
+        .tab button {
+            padding: 0.75rem 1.2rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #88bbd4; /* Muted blue for inactive tabs */
+            transition: color 0.3s ease, border-bottom 0.3s ease;
+        }
+        .tab button.active {
+            color: #004d73; /* Darker blue for active tab text */
+            border-bottom: 2px solid #007bff; /* Vibrant blue for active tab underline */
+        }
+        .tab button:hover:not(.active) {
+            color: #5599c2; /* Slightly darker on hover */
+        }
+
+        /* Panel Styling */
+        .panel { display: none; }
+        .panel.active { display: block; }
+        h2 {
+            margin-top: 0;
+            color: #004d73; /* Dark blue for headings */
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Input Fields */
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1.2rem;
+            border: 1px solid #a0d8ef; /* Light blue border */
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            color: #333;
+        }
+        input[type="text"]:focus, input[type="file"]:focus {
+            outline: none;
+            border-color: #007bff; /* Focus highlight */
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+        input[type="file"]::-webkit-file-upload-button {
+            background-color: #007bff; /* Blue button for file input */
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        input[type="file"]::file-selector-button { /* Standard CSS */
+            background-color: #007bff;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        /* Buttons */
+        button {
+            background: #007bff; /* Primary blue button */
+            color: white;
+            padding: 0.9rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+        button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            transform: translateY(-1px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button:disabled {
+            background: #a0d8ef; /* Lighter blue for disabled state */
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Result and Error Messages */
+        #upload-result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #e0f2f7; /* Light blue background for result */
+            border: 1px solid #a0d8ef; /* Blue border */
+            border-radius: 8px;
+            display: none;
+            color: #004d73; /* Dark blue text */
+            font-weight: 500;
+        }
+        #share-code {
+            font-size: 1.2rem;
+            color: #007bff; /* Vibrant blue for the code itself */
+            font-weight: 700;
+            word-break: break-all;
+        }
+        #error-msg {
+            color: #cc0000; /* Red for errors (standard for alerts) */
+            margin-top: 1.5rem;
+            padding: 0.75rem;
+            background: #ffe6e6; /* Light red background */
+            border: 1px solid #ffb3b3; /* Red border */
+            border-radius: 8px;
+            display: none;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="tab">
+            <button id="tab-send" class="active" onclick="showPanel('send')">Send</button>
+            <button id="tab-receive" onclick="showPanel('receive')">Receive</button>
+        </div>
+
+        <div id="panel-send" class="panel active">
+            <h2>Upload a File</h2>
+            <form id="upload-form">
+                <input type="file" id="file-input" required>
+                <button type="submit" id="upload-btn">Upload and Get Code</button>
+            </form>
+            <div id="upload-result">
+                Share this code: <strong id="share-code"></strong>
+            </div>
+        </div>
+
+        <div id="panel-receive" class="panel">
+            <h2>Download a File</h2>
+            <form id="download-form">
+                <input type="text" id="code-input" placeholder="Enter share code..." required>
+                <button type="submit">Download File</button>
+            </form>
+        </div>
+
+        <div id="error-msg"></div>
+    </div>
+
+    <script>
+        const sendPanel = document.getElementById('panel-send');
+        const receivePanel = document.getElementById('panel-receive');
+        const tabSend = document.getElementById('tab-send');
+        const tabReceive = document.getElementById('tab-receive');
+
+        const uploadForm = document.getElementById('upload-form');
+        const fileInput = document.getElementById('file-input');
+        const uploadBtn = document.getElementById('upload-btn');
+        
+        const uploadResult = document.getElementById('upload-result');
+        const shareCodeEl = document.getElementById('share-code');
+        
+        const downloadForm = document.getElementById('download-form');
+        const codeInput = document.getElementById('code-input');
+        
+        const errorMsg = document.getElementById('error-msg');
+
+        // Tab switching logic
+        function showPanel(panel) {
+            errorMsg.style.display = 'none';
+            if (panel === 'send') {
+                sendPanel.classList.add('active');
+                receivePanel.classList.remove('active');
+                tabSend.classList.add('active');
+                tabReceive.classList.remove('active');
+            } else {
+                sendPanel.classList.remove('active');
+                receivePanel.classList.add('active');
+                tabSend.classList.remove('active');
+                tabReceive.classList.add('active');
+            }
+        }
+
+        // Handle file upload
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = 'Uploading...';
+            errorMsg.style.display = 'none';
+            uploadResult.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Upload failed: ${response.status} ${errorText || response.statusText}`);
+                }
+
+                const result = await response.json();
+                shareCodeEl.textContent = result.share_code;
+                uploadResult.style.display = 'block';
+
+            } catch (err) {
+                errorMsg.textContent = `Error: ${err.message}`;
+                errorMsg.style.display = 'block';
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = 'Upload and Get Code';
+            }
+        });
+
+        // Handle file download
+        downloadForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            errorMsg.style.display = 'none';
+            const code = codeInput.value.trim();
+            if (code) {
+                // We trigger the download by setting the window location.
+                // The server's "Content-Disposition" header will do the rest.
+                window.location.href = `/download/${code}`;
+            }
+        });
+    </script>
+
+</body>
+</html>
