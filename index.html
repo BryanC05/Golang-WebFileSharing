@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Go Web Share</title>
     <style>
-        /* General Body and Container Styling */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #e0f2f7; /* Light blue background */
+            background-color: #e0f2f7;
             display: grid;
             place-items: center;
             min-height: 90vh;
@@ -18,17 +17,16 @@
         .container {
             background: #ffffff;
             border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0, 70, 100, 0.1); /* Blue-tinted shadow */
+            box-shadow: 0 6px 20px rgba(0, 70, 100, 0.1);
             padding: 2rem;
             width: 100%;
             max-width: 450px;
             box-sizing: border-box;
         }
 
-        /* Tab Navigation Styling */
         .tab {
             display: flex;
-            border-bottom: 2px solid #b3e0f2; /* Lighter blue border */
+            border-bottom: 2px solid #b3e0f2;
             margin-bottom: 1.5rem;
         }
         .tab button {
@@ -38,33 +36,31 @@
             cursor: pointer;
             font-size: 1.05rem;
             font-weight: 600;
-            color: #88bbd4; /* Muted blue for inactive tabs */
+            color: #88bbd4;
             transition: color 0.3s ease, border-bottom 0.3s ease;
         }
         .tab button.active {
-            color: #004d73; /* Darker blue for active tab text */
-            border-bottom: 2px solid #007bff; /* Vibrant blue for active tab underline */
+            color: #004d73;
+            border-bottom: 2px solid #007bff;
         }
         .tab button:hover:not(.active) {
-            color: #5599c2; /* Slightly darker on hover */
+            color: #5599c2;
         }
 
-        /* Panel Styling */
         .panel { display: none; }
         .panel.active { display: block; }
         h2 {
             margin-top: 0;
-            color: #004d73; /* Dark blue for headings */
+            color: #004d73;
             font-size: 1.8rem;
             margin-bottom: 1.5rem;
         }
 
-        /* Input Fields */
         input[type="text"], input[type="file"] {
             width: 100%;
             padding: 0.8rem;
             margin-bottom: 1.2rem;
-            border: 1px solid #a0d8ef; /* Light blue border */
+            border: 1px solid #a0d8ef;
             border-radius: 8px;
             box-sizing: border-box;
             font-size: 1rem;
@@ -72,11 +68,11 @@
         }
         input[type="text"]:focus, input[type="file"]:focus {
             outline: none;
-            border-color: #007bff; /* Focus highlight */
+            border-color: #007bff;
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
         }
         input[type="file"]::-webkit-file-upload-button {
-            background-color: #007bff; /* Blue button for file input */
+            background-color: #007bff;
             color: white;
             padding: 0.5rem 1rem;
             border: none;
@@ -84,7 +80,7 @@
             cursor: pointer;
             margin-right: 10px;
         }
-        input[type="file"]::file-selector-button { /* Standard CSS */
+        input[type="file"]::file-selector-button {
             background-color: #007bff;
             color: white;
             padding: 0.5rem 1rem;
@@ -94,9 +90,8 @@
             margin-right: 10px;
         }
 
-        /* Buttons */
         button {
-            background: #007bff; /* Primary blue button */
+            background: #007bff;
             color: white;
             padding: 0.9rem 1.5rem;
             border: none;
@@ -108,41 +103,40 @@
             transition: background-color 0.3s ease, transform 0.1s ease;
         }
         button:hover {
-            background-color: #0056b3; /* Darker blue on hover */
+            background-color: #0056b3;
             transform: translateY(-1px);
         }
         button:active {
             transform: translateY(0);
         }
         button:disabled {
-            background: #a0d8ef; /* Lighter blue for disabled state */
+            background: #a0d8ef;
             cursor: not-allowed;
             transform: none;
         }
 
-        /* Result and Error Messages */
         #upload-result {
             margin-top: 1.5rem;
             padding: 1rem;
-            background: #e0f2f7; /* Light blue background for result */
-            border: 1px solid #a0d8ef; /* Blue border */
+            background: #e0f2f7;
+            border: 1px solid #a0d8ef;
             border-radius: 8px;
             display: none;
-            color: #004d73; /* Dark blue text */
+            color: #004d73;
             font-weight: 500;
         }
         #share-code {
             font-size: 1.2rem;
-            color: #007bff; /* Vibrant blue for the code itself */
+            color: #007bff;
             font-weight: 700;
             word-break: break-all;
         }
         #error-msg {
-            color: #cc0000; /* Red for errors (standard for alerts) */
+            color: #cc0000;
             margin-top: 1.5rem;
             padding: 0.75rem;
-            background: #ffe6e6; /* Light red background */
-            border: 1px solid #ffb3b3; /* Red border */
+            background: #ffe6e6;
+            border: 1px solid #ffb3b3;
             border-radius: 8px;
             display: none;
             font-weight: 500;
@@ -197,7 +191,6 @@
         
         const errorMsg = document.getElementById('error-msg');
 
-        // Tab switching logic
         function showPanel(panel) {
             errorMsg.style.display = 'none';
             if (panel === 'send') {
@@ -213,7 +206,6 @@
             }
         }
 
-        // Handle file upload
         uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             uploadBtn.disabled = true;
@@ -248,18 +240,16 @@
             }
         });
 
-        // Handle file download
         downloadForm.addEventListener('submit', (e) => {
             e.preventDefault();
             errorMsg.style.display = 'none';
             const code = codeInput.value.trim();
             if (code) {
-                // We trigger the download by setting the window location.
-                // The server's "Content-Disposition" header will do the rest.
                 window.location.href = `/download/${code}`;
             }
         });
     </script>
 
 </body>
+
 </html>
